@@ -7,27 +7,21 @@ spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
-  - matrix:
-      generators:
-      - list:
-          elements:
-          - app: payment-gateway
-          - app: platform-service
-      - list:
-          elements:
-          - stage: dev
-          - stage: qa
-          - stage: prod
+  - list:
+      elements:
+      - stage: dev
+      - stage: qa
+      - stage: prod
   template:
     metadata:
-      name: '{{.app}}-{{.stage}}'
+      name: '{{.stage}}'
       annotations:
-        kargo.akuity.io/authorized-stage: 'rodemo:{{.app}}-{{.stage}}'
+        kargo.akuity.io/authorized-stage: 'rodemo:{{.stage}}'
     spec:
       project: default
       source:
         repoURL: https://github.com/navaneeth/kargo-test.git
-        targetRevision: 'stage/{{.app}}-{{.stage}}'
+        targetRevision: 'stage/{{.stage}}'
         path: .
       destination:
         server: https://kubernetes.default.svc

@@ -1,13 +1,11 @@
 apiVersion: kargo.akuity.io/v1alpha1
 kind: PromotionTask
 metadata:
-  name: promote-app
+  name: promote-system
   namespace: rodemo
 spec:
   vars:
   - name: gitopsRepo
-  - name: imageRepo
-  - name: appName
   - name: envName
   steps:
   - uses: git-clone
@@ -16,28 +14,41 @@ spec:
       checkout:
       - branch: main
         path: ./src
-      - branch: stage/${{ vars.appName }}-${{ vars.envName }}
+      - branch: stage/${{ vars.envName }}
         create: true
         path: ./out
   - uses: git-clear
     config:
       path: ./out
   - uses: kustomize-set-image
-    as: update
+    as: update-payment-gateway
     config:
-      path: ./src/apps/${{ vars.appName }}/base
+      path: ./src/apps/payment-gateway/base
       images:
-      - image: ${{ vars.imageRepo }}
-        tag: ${{ imageFrom(vars.imageRepo).Tag }}
+      - image: navaneethknharness/rodemo-payment-gateway
+        tag: ${{ imageFrom("navaneethknharness/rodemo-payment-gateway").Tag }}
+  - uses: kustomize-set-image
+    as: update-platform-service
+    config:
+      path: ./src/apps/platform-service/base
+      images:
+      - image: navaneethknharness/rodemo-platform-service
+        tag: ${{ imageFrom("navaneethknharness/rodemo-platform-service").Tag }}
   - uses: kustomize-build
     config:
-      path: ./src/apps/${{ vars.appName }}/stages/${{ vars.envName }}
+      path: ./src/apps/payment-gateway/stages/${{ vars.envName }}
+      outPath: ./out
+  - uses: kustomize-build
+    config:
+      path: ./src/apps/platform-service/stages/${{ vars.envName }}
       outPath: ./out
   - uses: git-commit
     as: commit
     config:
       path: ./out
-      message: ${{ task.outputs.update.commitMessage }}
+      message: |
+        ${{ task.outputs['update-payment-gateway'].commitMessage }}
+        ${{ task.outputs['update-platform-service'].commitMessage }}
   - uses: git-push
     config:
       path: ./out

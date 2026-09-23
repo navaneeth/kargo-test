@@ -1,13 +1,13 @@
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
 metadata:
-  name: payment-gateway-dev
+  name: dev
   namespace: rodemo
 spec:
   requestedFreight:
   - origin:
       kind: Warehouse
-      name: payment-gateway
+      name: system-release
     sources:
       direct: true
   promotionTemplate:
@@ -15,71 +15,59 @@ spec:
       vars:
       - name: gitopsRepo
         value: https://github.com/navaneeth/kargo-test.git
-      - name: imageRepo
-        value: navaneethknharness/rodemo-payment-gateway
-      - name: appName
-        value: payment-gateway
       - name: envName
         value: dev
       steps:
       - task:
-          name: promote-app
+          name: promote-system
         as: promo-process
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
 metadata:
-  name: payment-gateway-qa
+  name: qa
   namespace: rodemo
 spec:
   requestedFreight:
   - origin:
       kind: Warehouse
-      name: payment-gateway
+      name: system-release
     sources:
       stages:
-      - payment-gateway-dev
+      - dev
   promotionTemplate:
     spec:
       vars:
       - name: gitopsRepo
         value: https://github.com/navaneeth/kargo-test.git
-      - name: imageRepo
-        value: navaneethknharness/rodemo-payment-gateway
-      - name: appName
-        value: payment-gateway
       - name: envName
         value: qa
       steps:
       - task:
-          name: promote-app
+          name: promote-system
         as: promo-process
 ---
 apiVersion: kargo.akuity.io/v1alpha1
 kind: Stage
 metadata:
-  name: payment-gateway-prod
+  name: prod
   namespace: rodemo
 spec:
   requestedFreight:
   - origin:
       kind: Warehouse
-      name: payment-gateway
+      name: system-release
     sources:
       stages:
-      - payment-gateway-qa
+      - qa
   promotionTemplate:
     spec:
       vars:
       - name: gitopsRepo
         value: https://github.com/navaneeth/kargo-test.git
-      - name: imageRepo
-        value: navaneethknharness/rodemo-payment-gateway
-      - name: appName
-        value: payment-gateway
       - name: envName
         value: prod
       steps:
       - task:
-          name: promote-app-reviewed
+          name: promote-system-reviewed
         as: promo-process
