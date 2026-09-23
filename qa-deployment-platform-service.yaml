@@ -16,7 +16,7 @@ spec:
         app: platform-service
     spec:
       containers:
-      - image: navaneethknharness/rodemo-platform-service:1.0.14
+      - image: navaneethknharness/rodemo-platform-service:1.0.15
         name: platform-service
         resources:
           limits:
