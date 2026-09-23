@@ -16,7 +16,7 @@ spec:
         app: payment-gateway
     spec:
       containers:
-      - image: navaneethknharness/rodemo-payment-gateway:1.0.25
+      - image: navaneethknharness/rodemo-payment-gateway:1.0.24
         name: payment-gateway
         resources:
           limits:
