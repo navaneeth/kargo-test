@@ -81,5 +81,5 @@ spec:
         value: prod
       steps:
       - task:
-          name: promote-app
+          name: promote-app-reviewed
         as: promo-process

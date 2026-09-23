@@ -1,0 +1,65 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: PromotionTask
+metadata:
+  name: promote-app-reviewed
+  namespace: rodemo
+spec:
+  vars:
+  - name: gitopsRepo
+  - name: imageRepo
+  - name: appName
+  - name: envName
+  steps:
+  - uses: git-clone
+    config:
+      repoURL: ${{ vars.gitopsRepo }}
+      checkout:
+      - branch: main
+        path: ./src
+      - branch: stage/${{ vars.appName }}-${{ vars.envName }}
+        create: true
+        path: ./out
+  - uses: git-clear
+    config:
+      path: ./out
+  - uses: kustomize-set-image
+    as: update
+    config:
+      path: ./src/apps/${{ vars.appName }}/base
+      images:
+      - image: ${{ vars.imageRepo }}
+        tag: ${{ imageFrom(vars.imageRepo).Tag }}
+  - uses: kustomize-build
+    config:
+      path: ./src/apps/${{ vars.appName }}/stages/${{ vars.envName }}
+      outPath: ./out
+  - uses: git-commit
+    as: commit
+    config:
+      path: ./out
+      message: ${{ task.outputs.update.commitMessage }}
+  - uses: git-push
+    as: push
+    config:
+      path: ./out
+      generateTargetBranch: true
+  - uses: git-open-pr
+    as: open-pr
+    config:
+      repoURL: ${{ vars.gitopsRepo }}
+      sourceBranch: ${{ task.outputs.push.branch }}
+      targetBranch: stage/${{ vars.appName }}-${{ vars.envName }}
+      title: 'Promote ${{ vars.appName }} to ${{ vars.envName }}'
+  - if: ${{ status('open-pr') != 'Skipped' }}
+    uses: git-wait-for-pr
+    as: wait-for-pr
+    config:
+      repoURL: ${{ vars.gitopsRepo }}
+      prNumber: ${{ task.outputs['open-pr'].pr.id }}
+  - uses: argocd-update
+    config:
+      apps:
+      - name: ${{ ctx.stage }}
+        sources:
+        - repoURL: ${{ vars.gitopsRepo }}
+          desiredRevision: ${{ task.outputs['wait-for-pr'].commit }}
