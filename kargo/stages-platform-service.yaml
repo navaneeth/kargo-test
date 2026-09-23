@@ -19,6 +19,8 @@ spec:
         value: navaneethknharness/rodemo-platform-service
       - name: appName
         value: platform-service
+      - name: envName
+        value: dev
       steps:
       - task:
           name: promote-app
@@ -46,6 +48,8 @@ spec:
         value: navaneethknharness/rodemo-platform-service
       - name: appName
         value: platform-service
+      - name: envName
+        value: qa
       steps:
       - task:
           name: promote-app
@@ -73,6 +77,8 @@ spec:
         value: navaneethknharness/rodemo-platform-service
       - name: appName
         value: platform-service
+      - name: envName
+        value: prod
       steps:
       - task:
           name: promote-app
