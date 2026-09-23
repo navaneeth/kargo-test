@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: rodemo
+  namespace: argocd
+spec:
+  generators:
+  - matrix:
+      generators:
+      - list:
+          elements:
+          - app: payment-gateway
+          - app: platform-service
+      - list:
+          elements:
+          - stage: dev
+          - stage: qa
+          - stage: prod
+  template:
+    metadata:
+      name: '{{.app}}-{{.stage}}'
+      annotations:
+        kargo.akuity.io/authorized-stage: 'rodemo:{{.app}}-{{.stage}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/navaneeth/kargo-test.git
+        targetRevision: main
+        path: 'apps/{{.app}}/stages/{{.stage}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{.stage}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true

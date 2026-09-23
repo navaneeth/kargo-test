@@ -1,0 +1,23 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Warehouse
+metadata:
+  name: payment-gateway
+  namespace: rodemo
+spec:
+  subscriptions:
+  - image:
+      repoURL: navaneethknharness/rodemo-payment-gateway
+      constraint: ^1.0.0
+      discoveryLimit: 10
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Warehouse
+metadata:
+  name: platform-service
+  namespace: rodemo
+spec:
+  subscriptions:
+  - image:
+      repoURL: navaneethknharness/rodemo-platform-service
+      constraint: ^1.0.0
+      discoveryLimit: 10

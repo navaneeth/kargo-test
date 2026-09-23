@@ -1,0 +1,79 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: platform-service-dev
+  namespace: rodemo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: platform-service
+    sources:
+      direct: true
+  promotionTemplate:
+    spec:
+      vars:
+      - name: gitopsRepo
+        value: https://github.com/navaneeth/kargo-test.git
+      - name: imageRepo
+        value: navaneethknharness/rodemo-platform-service
+      - name: appName
+        value: platform-service
+      steps:
+      - task:
+          name: promote-app
+        as: promo-process
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: platform-service-qa
+  namespace: rodemo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: platform-service
+    sources:
+      stages:
+      - platform-service-dev
+  promotionTemplate:
+    spec:
+      vars:
+      - name: gitopsRepo
+        value: https://github.com/navaneeth/kargo-test.git
+      - name: imageRepo
+        value: navaneethknharness/rodemo-platform-service
+      - name: appName
+        value: platform-service
+      steps:
+      - task:
+          name: promote-app
+        as: promo-process
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: platform-service-prod
+  namespace: rodemo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: platform-service
+    sources:
+      stages:
+      - platform-service-qa
+  promotionTemplate:
+    spec:
+      vars:
+      - name: gitopsRepo
+        value: https://github.com/navaneeth/kargo-test.git
+      - name: imageRepo
+        value: navaneethknharness/rodemo-platform-service
+      - name: appName
+        value: platform-service
+      steps:
+      - task:
+          name: promote-app
+        as: promo-process

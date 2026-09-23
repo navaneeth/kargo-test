@@ -1,0 +1,79 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: payment-gateway-dev
+  namespace: rodemo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: payment-gateway
+    sources:
+      direct: true
+  promotionTemplate:
+    spec:
+      vars:
+      - name: gitopsRepo
+        value: https://github.com/navaneeth/kargo-test.git
+      - name: imageRepo
+        value: navaneethknharness/rodemo-payment-gateway
+      - name: appName
+        value: payment-gateway
+      steps:
+      - task:
+          name: promote-app
+        as: promo-process
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: payment-gateway-qa
+  namespace: rodemo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: payment-gateway
+    sources:
+      stages:
+      - payment-gateway-dev
+  promotionTemplate:
+    spec:
+      vars:
+      - name: gitopsRepo
+        value: https://github.com/navaneeth/kargo-test.git
+      - name: imageRepo
+        value: navaneethknharness/rodemo-payment-gateway
+      - name: appName
+        value: payment-gateway
+      steps:
+      - task:
+          name: promote-app
+        as: promo-process
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: payment-gateway-prod
+  namespace: rodemo
+spec:
+  requestedFreight:
+  - origin:
+      kind: Warehouse
+      name: payment-gateway
+    sources:
+      stages:
+      - payment-gateway-qa
+  promotionTemplate:
+    spec:
+      vars:
+      - name: gitopsRepo
+        value: https://github.com/navaneeth/kargo-test.git
+      - name: imageRepo
+        value: navaneethknharness/rodemo-payment-gateway
+      - name: appName
+        value: payment-gateway
+      steps:
+      - task:
+          name: promote-app
+        as: promo-process
