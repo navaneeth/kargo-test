@@ -4,6 +4,8 @@ metadata:
   name: rodemo
   namespace: argocd
 spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
   - matrix:
       generators:
@@ -25,8 +27,8 @@ spec:
       project: default
       source:
         repoURL: https://github.com/navaneeth/kargo-test.git
-        targetRevision: main
-        path: 'apps/{{.app}}/stages/{{.stage}}'
+        targetRevision: 'stage/{{.app}}-{{.stage}}'
+        path: .
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{.stage}}'

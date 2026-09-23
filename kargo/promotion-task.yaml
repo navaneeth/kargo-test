@@ -15,22 +15,32 @@ spec:
       repoURL: ${{ vars.gitopsRepo }}
       checkout:
       - branch: main
-        path: ./repo
+        path: ./src
+      - branch: stage/${{ vars.appName }}-${{ vars.envName }}
+        create: true
+        path: ./out
+  - uses: git-clear
+    config:
+      path: ./out
   - uses: kustomize-set-image
     as: update
     config:
-      path: ./repo/apps/${{ vars.appName }}/stages/${{ vars.envName }}
+      path: ./src/apps/${{ vars.appName }}/base
       images:
       - image: ${{ vars.imageRepo }}
         tag: ${{ imageFrom(vars.imageRepo).Tag }}
+  - uses: kustomize-build
+    config:
+      path: ./src/apps/${{ vars.appName }}/stages/${{ vars.envName }}
+      outPath: ./out
   - uses: git-commit
     as: commit
     config:
-      path: ./repo
+      path: ./out
       message: ${{ task.outputs.update.commitMessage }}
   - uses: git-push
     config:
-      path: ./repo
+      path: ./out
   - uses: argocd-update
     config:
       apps:
