@@ -8,8 +8,15 @@ spec:
   - image:
       repoURL: navaneethknharness/rodemo-payment-gateway
       constraint: ^1.0.0
+      # Excludes a stale 1.0.16-1.0.25 tag range left over from before the
+      # image's version counter was reset; the active sequence continues
+      # from 1.0.1 upward and would otherwise be shadowed by those tags.
+      ignoreTagsRegexes:
+      - ^1\.0\.(1[6-9]|2[0-5])$
       discoveryLimit: 10
   - image:
       repoURL: navaneethknharness/rodemo-platform-service
       constraint: ^1.0.0
+      ignoreTagsRegexes:
+      - ^1\.0\.(1[6-9]|2[0-5])$
       discoveryLimit: 10
